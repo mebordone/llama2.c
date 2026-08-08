@@ -1,0 +1,32 @@
+# Python / envs
+.venv/
+.venv_*/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Experiment logs
+experiments/
+
+# Heavy / generated data and models
+data/TinyStoriesES_all_data/
+data/eval_generators/
+data/tok512/
+data/tok4096/
+data/tiny.txt
+data/*.model
+data/*.vocab
+out_es_260k/
+out_es_15M/
+stories15M.bin
+stories260K/
+*.bin
+!data/tok512.bin
+!data/tok4096.bin
+
+# Built inference binaries
+/run
+/runq
+
+# Local artifacts
+*.pdf
