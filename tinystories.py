@@ -21,6 +21,8 @@ from tqdm import tqdm
 from tokenizer import Tokenizer
 
 DATA_CACHE_DIR = "data"
+# Default English TinyStories shards; override via --data_dir for other corpora (e.g. ES).
+DEFAULT_DATA_DIR = os.path.join(DATA_CACHE_DIR, "TinyStories_all_data")
 
 def download_file(url: str, fname: str, chunk_size=1024):
     """Helper function to download a file from a given url"""
@@ -68,13 +70,18 @@ def download():
     print(f"Number of shards: {len(shard_filenames)}")
     print(f"Example story:\n{data[0]}")
 
-def train_vocab(vocab_size):
+def train_vocab(vocab_size, data_dir=None, keep_tiny=True, character_coverage=1.0):
     """
     Trains a custom sentencepiece tokenizer on the TinyStories dataset.
-    The custom tokenizer files will be saved in DATA_CACHE_DIR/tok{N} directories,
+    The custom tokenizer files will be saved in DATA_CACHE_DIR/tok{N} prefixes,
     where N is the vocab size. This is also where the pretok .bin files will go.
+
+    Note: with small vocab_size (e.g. 512) and diverse Unicode corpora, coverage=1.0
+    can fail because required_chars + meta_pieces exceeds vocab_size. Lower coverage
+    and rely on byte_fallback for rare characters.
     """
     assert vocab_size > 0, "Vocab size must be positive"
+    data_dir = data_dir or DEFAULT_DATA_DIR
 
     # output file prefix path for sentencepiece
     prefix = os.path.join(DATA_CACHE_DIR, f"tok{vocab_size}")
@@ -84,10 +91,10 @@ def train_vocab(vocab_size):
 
     # 1) export a large chunk of text as a single text file tiny.txt
     tiny_file = os.path.join(DATA_CACHE_DIR, "tiny.txt")
-    data_dir = os.path.join(DATA_CACHE_DIR, "TinyStories_all_data")
     shard_filenames = sorted(glob.glob(os.path.join(data_dir, "*.json")))
+    assert shard_filenames, f"No json shards found in {data_dir}"
 
-    print(f"Writing temporary file {tiny_file} with {num_shards} shards...")
+    print(f"Writing temporary file {tiny_file} with up to {num_shards} shards from {data_dir}...")
     with open(tiny_file, "w", encoding="utf-8") as of:
         for shard in tqdm(shard_filenames[:num_shards]):
             with open(shard, "r") as f:
@@ -99,6 +106,10 @@ def train_vocab(vocab_size):
     print(f"Size is: {os.path.getsize(tiny_file) / 1024 / 1024:.2f} MB")
 
     # 2) train the sentencepiece model
+    # Auto-relax coverage for tiny vocabs if still at 1.0 (needed for ES Unicode).
+    if vocab_size <= 1024 and character_coverage >= 1.0:
+        character_coverage = 0.9995
+        print(f"Using character_coverage={character_coverage} for vocab_size={vocab_size}")
     print("Will now train the vocab...")
     spm.SentencePieceTrainer.train(input=tiny_file,
                                    model_prefix=prefix,
@@ -106,7 +117,7 @@ def train_vocab(vocab_size):
                                    vocab_size=vocab_size,
                                    self_test_sample_size=0,
                                    input_format="text",
-                                   character_coverage=1.0,
+                                   character_coverage=character_coverage,
                                    num_threads=os.cpu_count(),
                                    split_digits=True,
                                    allow_whitespace_only_pieces=True,
@@ -114,9 +125,10 @@ def train_vocab(vocab_size):
                                    unk_surface=r" \342\201\207 ",
                                    normalization_rule_name="identity")
 
-    # 3) optional cleanup, ask the user if they'd like to delete tiny.txt
-    dec = input(f"Delete the temporary file {tiny_file}? [y/N] ")
-    if dec.lower() == "y":
+    # 3) optional cleanup (non-interactive by default)
+    if keep_tiny:
+        print(f"Keeping temporary file {tiny_file}")
+    else:
         os.remove(tiny_file)
         print(f"Deleted {tiny_file}")
 
@@ -156,10 +168,11 @@ def process_shard(args, vocab_size):
     print(f"Saved {tokenized_filename}, average seqlen: {avg_seq_len:.2f}")
 
 
-def pretokenize(vocab_size):
+def pretokenize(vocab_size, data_dir=None):
     # iterate the shards and tokenize all of them one by one
-    data_dir = os.path.join(DATA_CACHE_DIR, "TinyStories_all_data")
+    data_dir = data_dir or DEFAULT_DATA_DIR
     shard_filenames = sorted(glob.glob(os.path.join(data_dir, "*.json")))
+    assert shard_filenames, f"No json shards found in {data_dir}"
     if vocab_size > 0:
         # .bin files will be saved into tok{N} directory, create it once here
         bin_dir = os.path.join(DATA_CACHE_DIR, f"tok{vocab_size}")
@@ -268,14 +281,23 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("stage", type=str, choices=["download", "pretokenize", "train_vocab"])
     parser.add_argument("--vocab_size", type=int, default=0, help="pretokenization vocab size. 0 = use Llama 2 tokenizer.")
+    parser.add_argument("--data_dir", type=str, default=None, help="directory with *.json story shards")
+    parser.add_argument("--keep_tiny", action="store_true", default=True, help="keep temporary tiny.txt after train_vocab")
+    parser.add_argument("--delete_tiny", action="store_true", help="delete temporary tiny.txt after train_vocab")
+    parser.add_argument("--character_coverage", type=float, default=1.0, help="sentencepiece character_coverage")
     args = parser.parse_args()
 
     # depending on the stage call the appropriate function
     if args.stage == "download":
         download()
     elif args.stage == "train_vocab":
-        train_vocab(vocab_size=args.vocab_size)
+        train_vocab(
+            vocab_size=args.vocab_size,
+            data_dir=args.data_dir,
+            keep_tiny=not args.delete_tiny,
+            character_coverage=args.character_coverage,
+        )
     elif args.stage == "pretokenize":
-        pretokenize(vocab_size=args.vocab_size)
+        pretokenize(vocab_size=args.vocab_size, data_dir=args.data_dir)
     else:
         raise ValueError(f"Unknown stage {args.stage}")
