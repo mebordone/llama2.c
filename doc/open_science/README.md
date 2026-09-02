@@ -9,8 +9,15 @@ Este directorio concentra **evidencia liviana y versionable** del experimento pr
 | `eval_generators_report.md` | Tabla de ranking Ollama (calidad/velocidad/VRAM) |
 | `eval_generators_ranking.json` | Ranking machine-readable |
 | `eval_generators_winner.txt` | Modelo elegido: `qwen2.5:7b-instruct` |
+| `run_es_260k_eval_config.json` | Config de la eval (temp, prompts, score) |
 | `corpus_generation_summary.json` | Tiempo, accept rate, ritmo de las 100k historias |
 | `sample_stories.json` | 5 cuentos de muestra del corpus |
+| `vocab_pretok_512_summary.json` | Stats pretok vocab 512 |
+| `vocab_pretok_4096_summary.json` | Stats pretok vocab 4096 |
+| `train_es_260k_launch.json` | argv exacto del train 260K |
+| `train_es_15M_launch.json` | argv exacto del train ~7.2M |
+| `run_es_260k_meta.json` | Host/GPU/Python/git del run |
+| `run_es_15M_config.json` | Config declarativa del run 15M |
 | `experiment_es_260k_SUMMARY.md` | Resumen del train/infer ~260K |
 | `experiment_es_15M_SUMMARY.md` | Resumen del train/infer ~7.2M |
 

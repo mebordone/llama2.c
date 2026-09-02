@@ -1,0 +1,21 @@
+{
+  "stage": "eval_generators",
+  "models": [
+    "qwen3.6:27b",
+    "qwen3.5:27b",
+    "mistral-small3.2:24b",
+    "gpt-oss:20b",
+    "qwen3.5:9b",
+    "llama3.1:8b",
+    "mistral-nemo:latest",
+    "qwen2.5:7b-instruct",
+    "gemma3:4b",
+    "phi4-mini:latest"
+  ],
+  "missing_models": [],
+  "temperature": 0.8,
+  "num_predict": 400,
+  "q_min": 0.55,
+  "n_prompts": 12,
+  "score": "0.55*Q + 0.45*S_norm"
+}

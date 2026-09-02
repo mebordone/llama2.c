@@ -1,0 +1,32 @@
+{
+  "vocab_size": 512,
+  "tokenizer_model": "data/tok512.model",
+  "tokenizer_bin": "data/tok512.bin",
+  "tokenizer_bin_bytes": 6255,
+  "n_bin_shards": 20,
+  "total_tokens": 32026456,
+  "avg_seqlen": 320.26455999999996,
+  "bin_bytes": {
+    "data00.bin": 3209808,
+    "data01.bin": 3219808,
+    "data02.bin": 3195566,
+    "data03.bin": 3212824,
+    "data04.bin": 3185384,
+    "data05.bin": 3191000,
+    "data06.bin": 3202368,
+    "data07.bin": 3204456,
+    "data08.bin": 3199098,
+    "data09.bin": 3207706,
+    "data10.bin": 3188036,
+    "data11.bin": 3200318,
+    "data12.bin": 3207110,
+    "data13.bin": 3204766,
+    "data14.bin": 3223756,
+    "data15.bin": 3180986,
+    "data16.bin": 3222222,
+    "data17.bin": 3189254,
+    "data18.bin": 3206562,
+    "data19.bin": 3201884
+  },
+  "timings": "train_vocab_sec=3\npretokenize_sec=3\n"
+}

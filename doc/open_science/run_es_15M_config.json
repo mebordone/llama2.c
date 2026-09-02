@@ -1,0 +1,33 @@
+{
+  "project": "tinystories_es_15M",
+  "corpus": "data/TinyStoriesES_all_data",
+  "n_stories": 100000,
+  "vocab_size": 4096,
+  "vocab_source": "custom",
+  "character_coverage": 0.9995,
+  "out_dir": "out_es_15M",
+  "tokenizer_bin": "data/tok4096.bin",
+  "arch": {
+    "dim": 288,
+    "n_layers": 6,
+    "n_heads": 6,
+    "n_kv_heads": 6,
+    "max_seq_len": 256,
+    "multiple_of": 32
+  },
+  "train": {
+    "batch_size": 128,
+    "gradient_accumulation_steps": 1,
+    "learning_rate": 0.0005,
+    "dropout": 0.0,
+    "weight_decay": 0.1,
+    "max_iters": 100000,
+    "beta2": 0.95,
+    "warmup_iters": 1000,
+    "eval_interval": 2000,
+    "eval_iters": 100,
+    "compile": true,
+    "device": "cuda",
+    "log_interval": 100
+  }
+}
