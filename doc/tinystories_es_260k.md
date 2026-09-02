@@ -2,6 +2,8 @@
 
 Modelo baby Llama 2 entrenado en cuentos sintéticos en español, misma receta que `stories260K`.
 
+Informe preliminar (ciencia abierta): [informe_tinystories_es.md](informe_tinystories_es.md) · artefactos: [open_science/](open_science/).
+
 ## Inferencia
 
 ```bash

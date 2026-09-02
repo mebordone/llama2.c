@@ -2,6 +2,8 @@
 
 Baby Llama 2 entrenado en el corpus español sintético (`data/TinyStoriesES_all_data`), arquitectura OG tipo `stories15M` de Karpathy, tokenizer custom 4096.
 
+Informe preliminar (ciencia abierta): [informe_tinystories_es.md](informe_tinystories_es.md) · artefactos: [open_science/](open_science/).
+
 ## Inferencia
 
 ```bash
