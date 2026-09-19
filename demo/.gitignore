@@ -1,0 +1,5 @@
+/run
+/models/*.bin
+/*.log
+/out_capture.txt
+/out_stderr.txt
